@@ -1092,21 +1092,27 @@
             return;
         }
 
-        // Define CSV Headers
-        const headers = ["WO Number", "Transaction Type", "Location", "ID", "CU", "Description", "Quantity"];
+        // Define CSV Headers (Updated Order as requested)
+        // 1.Date, 2.Blank, 3.WO, 4.Material ID, 5.Description, 6.Qty, 7.Type, 8.Location
+        const headers = ["Date", "", "WO Number", "Material ID", "Material Description", "Quantity", "Transaction Type", "Location"];
         
+        // Get current date in MM/DD/YYYY format
+        const now = new Date();
+        const dateStr = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()}`;
+
         // Sort data same as email (by WO)
         const sortedCart = [...cart].sort((a, b) => a.wo.localeCompare(b.wo) || a.type.localeCompare(b.type));
 
         // Map data to CSV rows
         const rows = sortedCart.map(item => [
-            `"${item.wo}"`,       // Quote strings to handle commas inside data
-            `"${item.type}"`,
-            `"${item.source}"`,
-            `"${item.cu}"`,       // Using .cu for ID as per your email logic
-            `"${item.id}"`,       // Using .id for CU as per your email logic
-            `"${item.desc}"`,
-            item.qty
+            `"${dateStr}"`,       // 1. Date
+            "",                   // 2. Blank Column
+            `"${item.wo}"`,       // 3. WO Number
+            `"${item.cu}"`,       // 4. Material ID (matches app's "ID" field)
+            `"${item.desc}"`,     // 5. Material Description
+            item.qty,             // 6. Quantity
+            `"${item.type}"`,     // 7. Issue/Credit
+            `"${item.source}"`    // 8. Location
         ]);
 
         // Combine headers and rows
@@ -1129,6 +1135,5 @@
     window.downloadCSV = downloadCSV;
 
 </script>
-
 </body>
 </html>
