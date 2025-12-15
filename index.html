@@ -1103,16 +1103,25 @@
         // Sort data same as email (by WO)
         const sortedCart = [...cart].sort((a, b) => a.wo.localeCompare(b.wo) || a.type.localeCompare(b.type));
 
-        // Map data to CSV rows
+        // Helper function to escape CSV fields correctly
+        // This fixes the issue where 14" or commas break the columns
+        function safeCSV(value) {
+            if (value === null || value === undefined) return '""';
+            const str = String(value);
+            // Replace any single " with two "" to escape it, then wrap the whole thing in quotes
+            return `"${str.replace(/"/g, '""')}"`; 
+        }
+
+        // Map data to CSV rows using the safeCSV function
         const rows = sortedCart.map(item => [
-            `"${dateStr}"`,       // 1. Date
-            "",                   // 2. Blank Column
-            `"${item.wo}"`,       // 3. WO Number
-            `"${item.cu}"`,       // 4. Material ID (matches app's "ID" field)
-            `"${item.desc}"`,     // 5. Material Description
-            item.qty,             // 6. Quantity
-            `"${item.type}"`,     // 7. Issue/Credit
-            `"${item.source}"`    // 8. Location
+            safeCSV(dateStr),       // 1. Date
+            "",                     // 2. Blank Column
+            safeCSV(item.wo),       // 3. WO Number
+            safeCSV(item.cu),       // 4. Material ID (matches app's "ID" field)
+            safeCSV(item.desc),     // 5. Material Description
+            item.qty,               // 6. Quantity (Numbers don't strictly need quotes, but it's safe)
+            safeCSV(item.type),     // 7. Issue/Credit
+            safeCSV(item.source)    // 8. Location
         ]);
 
         // Combine headers and rows
